@@ -32,7 +32,6 @@ model Room {
   nom             String
   description     String
   
-  // Tableau d'images (Stocké sous forme de texte JSON, ex: '["url1", "url2"]')[cite: 3]
   images          String   
   
   type            String   
