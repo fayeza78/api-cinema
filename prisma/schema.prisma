@@ -35,16 +35,15 @@ model Room {
   // Tableau d'images (Stocké sous forme de texte JSON, ex: '["url1", "url2"]')[cite: 3]
   images          String   
   
-  type            String   // Ex: "3D", "IMAX"[cite: 3]
+  type            String   
   
-  // Capacité de la salle (Contrainte de 15 à 30 places gérée côté serveur)[cite: 3]
   capacite        Int      
 
   seances Seance[]
   
-  acces_handicape Boolean  @default(false) // Optionnel[cite: 3]
+  acces_handicape Boolean  @default(false)
   
-  en_maintenance  Boolean  @default(false) // Si true, les séances n'y sont plus visibles[cite: 3]
+  en_maintenance  Boolean  @default(false) 
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -62,7 +61,7 @@ model Movie {
   updatedAt   DateTime @updatedAt
 }
 
-// --- MODÈLE DES SÉANCES (Le planning) ---
+
 model Seance {
   id          Int      @id @default(autoincrement())
   

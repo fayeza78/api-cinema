@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getRooms, createRoom, seedRooms } from '../controllers/room.controller.js';
+import { getRooms, createRoom, seedRooms, updateRoom, deleteRoom } from '../controllers/room.controller.js';
 import { authenticate } from '../middlewares/auth.middleware.js';
 
 const router = Router();
@@ -195,6 +195,93 @@ router.post('/seed', authenticate, seedRooms);
  */
 router.post('/', authenticate, createRoom);
 
-// supprimer et modifier
+
+/**
+ * @swagger
+ * /api/rooms/{id}:
+ *   put:
+ *     summary: Modifie une salle existante
+ *     description: Met à jour les informations d'une salle de cinéma spécifique.
+ *     tags: 
+ *       - Salles 
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: L'identifiant unique de la salle à modifier.
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nom:
+ *                 type: string
+ *                 example: "Salle IMAX 3D Ultra"
+ *               capacite:
+ *                 type: integer
+ *                 example: 30
+ *               description:
+ *                 type: string
+ *                 example: "Nouvelle description"
+ *               images:
+ *                 type: string
+ *                 example: "https://lien-vers-image-salle.jpg"
+ *               type:
+ *                 type: string
+ *                 example: "IMAX"
+ *               acces_handicape:
+ *                 type: boolean
+ *                 example: true
+ *               en_maintenance:
+ *                 type: boolean
+ *                 example: false
+ *     responses:
+ *       '200':
+ *         description: Salle modifiée avec succès.
+ *       '400':
+ *         description: Champs obligatoires manquants ou capacité invalide (doit être entre 15 et 30).
+ *       '401':
+ *         description: Non autorisé (Token manquant ou invalide).
+ *       '404':
+ *         description: Salle introuvable.
+ *       '500':
+ *         description: Erreur interne du serveur.
+ */
+router.put('/:id', authenticate, updateRoom);
+
+/**
+ * @swagger
+ * /api/rooms/{id}:
+ *   delete:
+ *     summary: Supprime une salle de cinéma
+ *     description: Supprime définitivement une salle de la base de données à partir de son identifiant.
+ *     tags: 
+ *       - Salles 
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: L'identifiant de la salle à supprimer.
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       '200':
+ *         description: Salle supprimée avec succès.
+ *       '401':
+ *         description: Non autorisé (Token manquant ou invalide).
+ *       '404':
+ *         description: Salle introuvable.
+ *       '500':
+ *         description: Erreur interne du serveur.
+ */
+router.delete('/:id', authenticate, deleteRoom);
 
 export default router;

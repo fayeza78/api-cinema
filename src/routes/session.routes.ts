@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createSession, getSessions } from '../controllers/session.controller.js';
+import { createSession, getSessions, deleteSession, updateSession } from '../controllers/session.controller.js';
 import { authenticate } from '../middlewares/auth.middleware.js';
 import { isAdmin } from '../middlewares/role.middleware.js';
 
@@ -84,6 +84,119 @@ const router = Router();
  *         description: Erreur lors de la création de la séance.
  */
 router.post('/', authenticate, isAdmin, createSession);
+
+/**
+ * @swagger
+ * /api/sessions/{id}:
+ *   put:
+ *     summary: Modifie une séance existante
+ *     description: Met à jour les informations d'une séance (film, salle, date fin et date début). Les mêmes règles d'ouverture (9h-20h en semaine) et de vérification des conflits s'appliquent.
+ *     tags:
+ *       - Séances
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: L'identifiant de la séance à modifier.
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               movieId:
+ *                 type: number
+ *                 example: 1
+ *               roomId:
+ *                 type: number
+ *                 example: 2
+ *               startTime:
+ *                 type: string
+ *                 format: date-time
+ *                 example: "2025-06-11T14:00:00.000Z"
+ *     responses:
+ *       '200':
+ *         description: Séance modifiée avec succès.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Séance modifiée avec succès
+ *                 session:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: number
+ *                       example: 1
+ *                     movieId:
+ *                       type: number
+ *                       example: 1
+ *                     roomId:
+ *                       type: number
+ *                       example: 2
+ *                     startTime:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2025-06-11T14:00:00.000Z"
+ *                     endTime:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2025-06-11T16:30:00.000Z"
+ *       '400':
+ *         description: "Cinéma fermé le week-end, horaire invalide ou conflit d'horaire."
+ *       '401':
+ *         description: Non autorisé (Token manquant ou expiré).
+ *       '404':
+ *         description: Séance ou Film introuvable.
+ *       '500':
+ *         description: Erreur lors de la modification de la séance.
+ */
+router.put('/:id', authenticate, isAdmin, updateSession);
+
+/**
+ * @swagger
+ * /api/sessions/{id}:
+ *   delete:
+ *     summary: Supprime une séance
+ *     description: Supprime définitivement une séance du planning.
+ *     tags:
+ *       - Séances
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: L'identifiant  de la séance à supprimer.
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       '200':
+ *         description: Séance supprimée avec succès.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Séance supprimée avec succès.
+ *       '401':
+ *         description: Non autorisé (Token manquant ou expiré).
+ *       '404':
+ *         description: Séance introuvable.
+ *       '500':
+ *         description: Erreur lors de la suppression de la séance.
+ */
+router.delete('/:id', authenticate, isAdmin, deleteSession);
 
 /**
  * @swagger
