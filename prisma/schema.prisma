@@ -1,0 +1,115 @@
+// Configuration du client Prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Connexion à la base de données PostgreSQL
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// --- MODÈLE DES UTILISATEURS ---
+model User {
+  id       Int      @id @default(autoincrement())
+  email    String   @unique
+  password String
+  role     String   @default("CLIENT") 
+  solde    Float    @default(0.0)
+
+  tickets Ticket[]
+  refreshTokens RefreshToken[]
+  transactions Transaction[]
+
+  superBillets Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// --- MODÈLE DES SALLES ---
+model Room {
+  id              Int      @id @default(autoincrement())
+  nom             String
+  description     String
+  
+  // Tableau d'images (Stocké sous forme de texte JSON, ex: '["url1", "url2"]')[cite: 3]
+  images          String   
+  
+  type            String   // Ex: "3D", "IMAX"[cite: 3]
+  
+  // Capacité de la salle (Contrainte de 15 à 30 places gérée côté serveur)[cite: 3]
+  capacite        Int      
+
+  seances Seance[]
+  
+  acces_handicape Boolean  @default(false) // Optionnel[cite: 3]
+  
+  en_maintenance  Boolean  @default(false) // Si true, les séances n'y sont plus visibles[cite: 3]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+// --- MODÈLE DES FILMS ---
+model Movie {
+  id          Int      @id @default(autoincrement())
+  titre       String
+  description String?  
+  duree       Int      
+  affiche     String   
+  seance     Seance[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// --- MODÈLE DES SÉANCES (Le planning) ---
+model Seance {
+  id          Int      @id @default(autoincrement())
+  
+  movieId     Int
+  roomId      Int
+  
+  startTime   DateTime
+  endTime     DateTime 
+
+  tickets     Ticket[]
+
+  movie       Movie    @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  room        Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Ticket {
+  id Int @id @default(autoincrement())
+  sessionId Int
+  userId Int
+
+  session     Seance  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique 
+  userId    Int
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  expiresAt DateTime 
+  createdAt DateTime @default(now())
+}
+
+model Transaction {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  montant     Float    
+  
+  description String   
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+}

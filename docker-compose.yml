@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: cinema_db
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: cinema_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: .
+      target: production
+    container_name: cinema_api
+    restart: always
+    ports:
+      - "3002:3002"
+    
+    env_file:
+      - .env
+
+    environment:
+      - DATABASE_URL=postgresql://admin:password123@db:5432/cinema_db?schema=public
+    depends_on:
+      - db
+
+volumes:
+  pgdata:
