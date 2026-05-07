@@ -120,12 +120,10 @@ export const updateSession = async (req: Request, res: Response) => {
       return;
     }
 
-    // On prend les nouvelles valeurs, ou on garde les anciennes si elles ne sont pas modifiées
     const updateMovieId = movieId || existingSession.movieId;
     const updateRoomId = roomId || existingSession.roomId;
     const updateStartTime = startTime ? new Date(startTime) : existingSession.startTime;
 
-    // 2. Vérification des jours et horaires
     const day = updateStartTime.getDay(); 
     if (day === 0 || day === 6) {
       res.status(400).json({ message: 'Le cinéma est fermé le week-end' });
@@ -138,7 +136,6 @@ export const updateSession = async (req: Request, res: Response) => {
       return;
     }
 
-    // 3. Récupération du film pour recalculer la durée
     const movie = await prisma.movie.findUnique({ where: { id: updateMovieId } });
     if (!movie) {
       res.status(404).json({ message: 'Film introuvable.' });
@@ -162,11 +159,10 @@ export const updateSession = async (req: Request, res: Response) => {
     });
 
     if (overlap) {
-      res.status(400).json({ message: 'Conflit d\'horaire ! La salle est occupée ou le film passe déjà à cette heure-là 🛑' });
+      res.status(400).json({ message: 'Conflit d\'horaire ! La salle est occupée ou le film passe déjà à cette heure-là' });
       return;
     }
 
-    // 5. Mise à jour de la séance
     const updatedSession = await prisma.seance.update({
       where: { id: sessionId },
       data: {

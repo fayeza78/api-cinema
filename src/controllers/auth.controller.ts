@@ -56,7 +56,6 @@ export const login = async (req: Request, res: Response) => {
       return;
     }
 
-    // 2. Chercher l'utilisateur dans la base de données
     const user = await prisma.user.findUnique({
       where: { email }
     });

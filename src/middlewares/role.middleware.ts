@@ -3,7 +3,7 @@ import prisma from '../config/db.js';
 
 export const isAdmin = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // 1. On récupère direct l'ID validé par ton middleware 'authenticate' qui est passé juste avant
+    //  On récupère direct l'ID validé par ton middleware 'authenticate' qui est passé juste avant
     const userId = (req as any).user?.userId;
 
     if (!userId) {
@@ -11,16 +11,16 @@ export const isAdmin = async (req: Request, res: Response, next: NextFunction) =
       return;
     }
 
-    // 2. On cherche l'utilisateur en base de données (ça règle ton erreur TS2304)
+    //  On cherche l'utilisateur en base de données (ça règle ton erreur TS2304)
     const user = await prisma.user.findUnique({ where: { id: userId } });
 
-    // 3. On bloque si ce n'est pas un admin
+    // On bloque si ce n'est pas un admin
     if (!user || user.role !== 'ADMIN') {
       res.status(403).json({ message: 'Accès refusé. Réservé aux administrateurs.' });
       return;
     }
 
-    // 4. C'est bien un admin, on le laisse passer vers le contrôleur
+    //  C'est bien un admin, on le laisse passer vers le contrôleur
     next();
   } catch (error) {
     console.error(error);
